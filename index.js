@@ -22,7 +22,6 @@ const io = new Server(server, {
 const corsOptions = {
   origin: "*",
   methods: ["GET", "POST"],
-
 }
 app.use(cors(corsOptions))
 
@@ -30,10 +29,14 @@ global.roomIds = [];
 app.use(express.static(path.join(__dirname, "..", "build")));
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
-
+app.get("/",(req,res)=>{
+  res.send("Backend is Live")
+})
 app.post("/room", roomManager.newRoom);
 app.post("/joinroom", roomManager.joinRoom);
 app.post("/getboard", roomManager.sendBoard);
+
+ 
 server.listen(PORT, () => {
   console.log("Server Started");
 })
@@ -44,7 +47,6 @@ io.on("connection", (socket) => {
     socket.username = username;
     socket.join(roomId)
     socket.to(roomId).emit("addPlayer",username)
-    console.log("socket: " + socket.username)
   })
 
   socket.on("sendMessage", (message, roomId) => {
@@ -53,7 +55,6 @@ io.on("connection", (socket) => {
 
   socket.on("updateGrid", (roomId, val, pos) => {
 
-    console.log("room: " + roomId + ":" + val)
 
 
     if (global.roomIds.includes(roomId)) {
@@ -70,7 +71,6 @@ io.on("connection", (socket) => {
           }
         });
 
-        console.log(global[roomId])
         global[roomId].turn += 1;
         if (global[roomId].turn > global[roomId].players.length - 1) {
           global[roomId].turn = 0;
